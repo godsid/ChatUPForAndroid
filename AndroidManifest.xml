@@ -15,24 +15,21 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
     <uses-feature android:glEsVersion="0x00020000" android:required="true" />
-
-    <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" android:hardwareAccelerated="true">
-        <activity
-            android:name="com.uniteitsolution.chatup.MainActivity"
-            android:label="@string/app_name" >
+    <application android:allowBackup="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:theme="@style/AppTheme" android:hardwareAccelerated="true">
+        <activity android:name="com.uniteitsolution.chatup.MainActivity" android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <meta-data 
-            android:name="com.google.android.maps.v2.API_KEY"
-             android:value="AIzaSyDkkRgaIdkIbb_nlPyP4Gqq357bXzdiBEE" />
-        <meta-data android:value="@integer/google_play_services_version" android:name="com.google.android.gms.version"/>
+        </activity><activity android:name="com.uniteitsolution.chatup.RoomActivity"></activity>
+        
+        <meta-data android:name="com.uniteitsolution.chatup.ApplicationId" android:resource="@string/facebook_app_id" />
+        <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyDkkRgaIdkIbb_nlPyP4Gqq357bXzdiBEE" />
+        <meta-data android:value="@integer/google_play_services_version" android:name="com.google.android.gms.version" />
+        
+        
+        <activity android:name="com.uniteitsolution.chatup.LoginActivity"></activity>
+        
     </application>
 
 </manifest>

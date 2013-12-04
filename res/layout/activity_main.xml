@@ -8,7 +8,15 @@
     tools:context=".MainActivity" >
 
     
-    
+    <TextView
+        android:id="@+id/registerLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/facebookLogin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="64dp"
+        android:text="Register/Login"
+        android:textAppearance="?android:attr/textAppearanceLarge" />confirmconfirmconfirmconfirm
     <Button
         android:id="@+id/facebookLogin"
         android:layout_width="wrap_content"
@@ -18,15 +26,7 @@
         android:layout_marginTop="144dp"
         android:text="Facebook" />
 
-    <TextView
-        android:id="@+id/registerLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/facebookLogin"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="64dp"
-        android:text="Register/Login"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+    
 
 	
 

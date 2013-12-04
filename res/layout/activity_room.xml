@@ -7,7 +7,7 @@
 	
 	
     <View
-        android:id="@+id/view1"
+        android:id="@+id/map"
         android:layout_width="wrap_content"
         android:layout_height="200dp"
         android:layout_alignParentLeft="true"
@@ -17,11 +17,11 @@
         android:id="@+id/view2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/view1"
+        android:layout_below="@+id/map"
         android:layout_centerHorizontal="true" />
 
     <GridView
-        android:id="@+id/gridView1"
+        android:id="@+id/roomList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/view2"

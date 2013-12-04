@@ -4,5 +4,11 @@
     <string name="app_name">chatup</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-
+    <string name="alert_exit_title">คุณต้องการออกจากโปรแกรม?</string>
+    <string name="alert_exit_message">คุณต้องการออกจากโปรแกรม?</string>
+    <string name="alert_exit_button_yes">ใช่</string>
+    <string name="alert_exit_button_no">ไม่ต้องการ</string><string name="facebook_app_id">202755173188388</string>
+    <string name="page_register_title">สมัครสมาชิก / เข้าสู่ระบบ</string>
+    <string name="page_room_title">ห้องสนทนา</string>
+	
 </resources>
