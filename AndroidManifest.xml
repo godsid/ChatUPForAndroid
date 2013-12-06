@@ -21,7 +21,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity><activity android:name="com.uniteitsolution.chatup.RoomActivity"></activity>
+        </activity><activity android:name="com.uniteitsolution.chatup.LocationActivity"></activity>
         
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:resource="@string/app_id" />
         <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyDkkRgaIdkIbb_nlPyP4Gqq357bXzdiBEE" />
@@ -31,7 +31,8 @@
         <activity android:name="com.uniteitsolution.chatup.LoginAppActivity"></activity>
         <activity android:name="com.uniteitsolution.chatup.Preference"></activity>
         <activity android:name="com.facebook.LoginActivity"></activity>
-        
+        <activity android:name="com.uniteitsolution.chatup.ChatActivity"></activity>
+        <uses-library android:name="com.google.android.maps"></uses-library>
     </application>
 
 </manifest>

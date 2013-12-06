@@ -11,5 +11,6 @@
     <string name="app_id">202755173188388</string>
     <string name="page_register_title">สมัครสมาชิก / เข้าสู่ระบบ</string>
     <string name="page_room_title">ห้องสนทนา</string>
+    <string name="page_chat_title">สนทนา</string>
 	
 </resources>

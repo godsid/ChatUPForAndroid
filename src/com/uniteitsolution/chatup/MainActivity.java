@@ -1,7 +1,5 @@
 package com.uniteitsolution.chatup;
 
-import com.facebook.LoginActivity;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -17,16 +15,23 @@ public class MainActivity extends Activity {
 	
 	public static SharedPreferences preferences;
 	public static final String PREFS_ACCOUNT = "account";
-	public static String username; 
+	public static String username;
+	public static String location;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		this.checkLogin();
-		
+		Log.d("Loguser","onCreate");
 	}
 	
+	@Override
+	protected void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+		Log.d("Loguser","onStart");
+	}
+
 	@Override
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
@@ -52,15 +57,28 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	
-	protected void checkLogin(){
+	protected boolean checkLocation(){
+		Log.d("Loguser","Checklocation");
+		location = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location", "");
+		if(location==""){
+			Intent goLocation = new Intent(this.getApplicationContext(),LocationActivity.class);
+			startActivityForResult(goLocation,1);
+			return false;
+		}else{
+			return true;
+		}	
+	}
+	protected boolean checkLogin(){
+		Log.d("Loguser","Checklogin");
 		username = this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("username", "");
 		if(username==""){
 			Intent goFacebookLogin = new Intent(this.getApplicationContext(),LoginAppActivity.class);
 			startActivityForResult(goFacebookLogin,1);
+			return false;
 		}else{
-			Intent goRoom = new Intent(this.getApplicationContext(),RoomActivity.class);
-			startActivityForResult(goRoom,1);
+			Intent goChat = new Intent(this.getApplicationContext(),ChatActivity.class);
+			startActivityForResult(goChat,1);
+			return true;
 		}
 	}
 	
@@ -68,7 +86,10 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		this.checkLogin();
+		Log.d("Loguser","onResume");
+		if(this.checkLocation()){
+			this.checkLogin();
+		}
 	}
 	
 	@Override
@@ -80,13 +101,17 @@ public class MainActivity extends Activity {
 			if(data.getBooleanExtra("exit",false)==true){
 				finish();
 			}
+			/*else if(data.getBooleanExtra("location",false)==true){
+				
+			}*/
+			
 		}
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO Auto-generated method stub
-		new MenuManagement(item);
+		//new MenuManagement(item);
 		switch(item.getItemId()){
 		case R.id.menu_logout:
 			this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).edit().remove("username").commit();
