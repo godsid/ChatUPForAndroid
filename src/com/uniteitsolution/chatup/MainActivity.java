@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
 		Log.d("Loguser","Checklocation");
 		location = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location", "");
 		if(location==""){
-			Intent goLocation = new Intent(this.getApplicationContext(),LocationActivity.class);
+			Intent goLocation = new Intent(this.getApplicationContext(),LocationAppActivity.class);
 			startActivityForResult(goLocation,1);
 			return false;
 		}else{

@@ -2,34 +2,89 @@ package com.uniteitsolution.chatup;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.GridView;
 //import com.google.android.gms.maps.*;
 
 //import com.uniteitsolution.chatup.MenuManagement;
 
-public class LocationActivity extends Activity{
+public class LocationAppActivity extends Activity implements LocationListener{
 
 	public static SharedPreferences preferences;
 	public static final String PREFS_ACCOUNT = "account";
+	private LocationManager locManager;
 	
 	//private MapView maps;
-	private GridView roomLists;
+	//private GridView roomLists;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_room);
 		this.setTitle(R.string.page_room_title);
+		locManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+		
 		Log.d("Loguser","Location Create");
 		//maps = (MapView)findViewById(R.id.map);
 	
 		//roomLists = (GridView)findViewById(R.id.roomList);
 		
 	}
+	
+	
+	
+	@Override
+	public void onLocationChanged(Location arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void onProviderDisabled(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void onProviderEnabled(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		Log.d("Loguser","OnResume ");
+		this.locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1500, 1, this);
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		//this.locManager.removeUpdates(this);
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// TODO Auto-generated method stub

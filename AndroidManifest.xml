@@ -21,7 +21,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity><activity android:name="com.uniteitsolution.chatup.LocationActivity"></activity>
+        </activity><activity android:name="com.uniteitsolution.chatup.LocationAppActivity"></activity>
         
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:resource="@string/app_id" />
         <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyDkkRgaIdkIbb_nlPyP4Gqq357bXzdiBEE" />
