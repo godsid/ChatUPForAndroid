@@ -7,7 +7,7 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="18" 
-        android:maxSdkVersion="18"/>
+        android:maxSdkVersion="18" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -21,7 +21,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity><activity android:name="com.uniteitsolution.chatup.LocationAppActivity"></activity>
+        </activity><activity android:name="LocationAppActivity"></activity>
         
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:resource="@string/app_id" />
         <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyDkkRgaIdkIbb_nlPyP4Gqq357bXzdiBEE" />

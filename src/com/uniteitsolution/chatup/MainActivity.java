@@ -1,5 +1,7 @@
 package com.uniteitsolution.chatup;
 
+import java.util.Calendar;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -16,7 +18,11 @@ public class MainActivity extends Activity {
 	public static SharedPreferences preferences;
 	public static final String PREFS_ACCOUNT = "account";
 	public static String username;
-	public static String location;
+	public static String location_lat;
+	public static String location_lng;
+	public static String location_name;
+	public static long location_time;
+	private static final int refreshLocationTime = 10000;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,14 +65,20 @@ public class MainActivity extends Activity {
 	}
 	protected boolean checkLocation(){
 		Log.d("Loguser","Checklocation");
-		location = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location", "");
-		if(location==""){
+		
+		location_lat = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_lat", "");
+		location_lng = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_lng", "");
+		location_name = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_name", "");
+		location_time = Long.valueOf(this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_time", "0"));
+		Log.d("Loguser","ddddddd"+location_lat+":"+String.valueOf(location_time)+":"+String.valueOf(Calendar.getInstance().getTimeInMillis()));
+		
+		if(location_lat=="" || location_time < Calendar.getInstance().getTimeInMillis() - refreshLocationTime){
 			Intent goLocation = new Intent(this.getApplicationContext(),LocationAppActivity.class);
 			startActivityForResult(goLocation,1);
 			return false;
 		}else{
 			return true;
-		}	
+		}
 	}
 	protected boolean checkLogin(){
 		Log.d("Loguser","Checklogin");

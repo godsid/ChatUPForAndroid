@@ -12,5 +12,9 @@
     <string name="page_register_title">สมัครสมาชิก / เข้าสู่ระบบ</string>
     <string name="page_room_title">ห้องสนทนา</string>
     <string name="page_chat_title">สนทนา</string>
+    <string name="alert_location_yes">ใช่</string>
+    <string name="alert_location_no">ไม่</string>
+    <string name="alert_location_title">Location Manager</string>
+    <string name="alert_location_message">GPS is currently disabled.\nWould you like to change these settings now?</string>
 	
 </resources>
