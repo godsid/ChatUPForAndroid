@@ -50,12 +50,15 @@ public class ChatActivity extends Activity{
 						Log.d("Loguser","JSON Callback");
 					}
 				});
-				try {
-					client.emit(new JSONObject("{lat: 100.5287415,lng: '13.9042641',dist:'5000',palce:'place'}"));
+				try {//5::/chat:{"name":"find room","args":[{"lat":13.9042306,"lng":100.5299558,"palce":"place"}]}
+					//client.emit("Hello World");
+					Log.d("Loguser","send find room");
+					client.emit(new JSONObject("name:'find room',args:[{lat: 100.5287415,lng: '13.9042641',dist:'5000',palce:'place'}]"));
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				client.disconnect();
 			}
 		});
 	}

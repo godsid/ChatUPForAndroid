@@ -3,6 +3,7 @@ package com.uniteitsolution.chatup;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -17,9 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-//import com.google.android.gms.maps.*;
 
-//import com.uniteitsolution.chatup.MenuManagement;
 
 public class LocationAppActivity extends Activity {
 
@@ -34,7 +33,8 @@ public class LocationAppActivity extends Activity {
 	private static int location_time;
 	
 	static final int getLocationTimeout = 5000;
-	
+	static final long getLocationMinTime = 10000;
+	static final int getLocationMinDistance = 10;
 	
 	//private MapView maps;
 	//private GridView roomLists;
@@ -49,7 +49,6 @@ public class LocationAppActivity extends Activity {
 		
 		this.locManager = (LocationManager)getSystemService(LOCATION_SERVICE);
 		this.location = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		
 		
 		locListener = new LocationListener() {
 			
@@ -131,7 +130,7 @@ public class LocationAppActivity extends Activity {
 			.create()
 			.show();
 		}else{
-			this.locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1500, 1, this.locListener);
+			this.locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, getLocationMinTime, getLocationMinDistance, this.locListener);
 			Log.d("Loguser","Waitting Location detect");
 			Timer autoUpdate = new Timer();
 			autoUpdate.schedule(new TimerTask() {
