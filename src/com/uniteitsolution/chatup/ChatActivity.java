@@ -46,8 +46,6 @@ public class ChatActivity extends Activity {
 		final Button chatSend = (Button)findViewById(R.id.chat_send);
 		final TextView chatHead = (TextView)findViewById(R.id.chat_head);
 		
-		
-		
 		this.setTitle(R.string.page_chat_title);
 		this.connect();
 		
@@ -60,14 +58,12 @@ public class ChatActivity extends Activity {
 				if(chatBox.getText().toString()!=""){
 					//chatClient.emit(chatBox.getText().toString());
 					try {
-						chatClient.emit(new JSONObject("{\"msg\":\""+chatBox.getText().toString()+"\",\"user\":{\"name\":\"sss\",\"avatar\":\"http://graph.facebook.com/1045969376/picture?type=square\"}}"));
+						chatClient.emit(new JSONObject("{msg:\""+chatBox.getText().toString()+"\",user:{name:\"Kea\",avatar:\"http://graph.facebook.com/534460549/picture?type=square\"}}"));
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						Log.d("Loguser",e.getMessage());
 					}
-					
-					//{"name":"message","args":[{"msg":"wweeee","user":{"name":"",avatar":"http://graph.facebook.com/1045969376/picture?type=square"}}]}
 					chatBox.setText("");
 				}
 			}
