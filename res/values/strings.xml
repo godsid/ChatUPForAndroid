@@ -16,5 +16,9 @@
     <string name="alert_location_no">ไม่</string>
     <string name="alert_location_title">Location Manager</string>
     <string name="alert_location_message">GPS is currently disabled.\nWould you like to change these settings now?</string>
+    <string name="menu_exit">Exit</string>
+    <string name="config_server_url">http://api.srihawong.info</string>
+    <string name="config_server_port">8080</string>
+    <string name="chat_send">Send</string>
 	
 </resources>

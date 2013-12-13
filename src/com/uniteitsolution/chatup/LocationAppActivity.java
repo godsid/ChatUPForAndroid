@@ -32,6 +32,9 @@ public class LocationAppActivity extends Activity {
 	private static String location_name;
 	private static int location_time;
 	
+	private int locationRetryCount = 1;
+	private int maxLocationRetryCount = 1;
+	private String provider = LocationManager.GPS_PROVIDER;
 	static final int getLocationTimeout = 5000;
 	static final long getLocationMinTime = 10000;
 	static final int getLocationMinDistance = 10;
@@ -48,35 +51,31 @@ public class LocationAppActivity extends Activity {
 		Toast.makeText(getBaseContext(),"onCreate",Toast.LENGTH_SHORT).show();
 		
 		this.locManager = (LocationManager)getSystemService(LOCATION_SERVICE);
-		this.location = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		this.location = locManager.getLastKnownLocation(this.provider);
 		
 		locListener = new LocationListener() {
 			
 			@Override
 			public void onStatusChanged(String provider, int status, Bundle extras) {
 				// TODO Auto-generated method stub
-				Log.d("Loguser","onStatusChanged");
 				Toast.makeText(getBaseContext(),"onStatusChanged",Toast.LENGTH_SHORT).show();
 			}
 			
 			@Override
 			public void onProviderEnabled(String provider) {
 				// TODO Auto-generated method stub
-				Log.d("Loguser","onProviderEnabled");
 				Toast.makeText(getBaseContext(),"onProviderEnabled",Toast.LENGTH_SHORT).show();
 			}
 			
 			@Override
 			public void onProviderDisabled(String provider) {
 				// TODO Auto-generated method stub
-				Log.d("Loguser","onProviderDisabled");
 				Toast.makeText(getBaseContext(),"onProviderDisabled",Toast.LENGTH_SHORT).show();
 			}
 			
 			@Override
 			public void onLocationChanged(Location locationUpdate) {
 				// TODO Auto-generated method stub
-				Log.d("Loguser","onLocationChanged");
 				Toast.makeText(getBaseContext(),"onLocationChanged",Toast.LENGTH_SHORT).show();
 				location = locationUpdate;
 				if(location!=null){
@@ -100,20 +99,16 @@ public class LocationAppActivity extends Activity {
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		Log.d("Loguser","Location OnResume ");
 		Toast.makeText(getBaseContext(),"onResume",Toast.LENGTH_SHORT).show();
 		
-		Log.d("Loguser",String.valueOf(locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)));
-		
 		if(this.location==null){
-			Log.d("Loguser","getLastKnownLocation is null");
 			Toast.makeText(getBaseContext(),"getLastKnownLocation is null",Toast.LENGTH_SHORT).show();
 		}else{
 			this.setLocationSharedPreferences(this.location);
 			Toast.makeText(getBaseContext(),"This Location "+location.getLatitude() ,Toast.LENGTH_SHORT).show();
 		}
 		
-		if (!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+		if (!locManager.isProviderEnabled(this.provider)) {
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.alert_location_title)
 			.setMessage(R.string.alert_location_message)
@@ -121,7 +116,6 @@ public class LocationAppActivity extends Activity {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					// TODO Auto-generated method stub
-					Log.d("Loguser","Enable Setting");
 					Intent intentSetting = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 					startActivity(intentSetting);
 				}
@@ -130,22 +124,11 @@ public class LocationAppActivity extends Activity {
 			.create()
 			.show();
 		}else{
-			this.locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, getLocationMinTime, getLocationMinDistance, this.locListener);
-			Log.d("Loguser","Waitting Location detect");
-			Timer autoUpdate = new Timer();
-			autoUpdate.schedule(new TimerTask() {
-				
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					Log.d("Loguser","Waitting Timeout");
-					locManager.removeUpdates(locListener);
-					finish();
-				}
-			},getLocationTimeout);
+			this.locManager.requestLocationUpdates(this.provider, getLocationMinTime, getLocationMinDistance, this.locListener);
+			getLocation();
 		}
 	}
-
+	
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
@@ -171,31 +154,59 @@ public class LocationAppActivity extends Activity {
 			this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).edit().remove("username").commit();
 			finish();
 			break;
+		case R.id.menu_exit:
+			new AlertDialog.Builder(this)
+			.setTitle(R.string.alert_exit_title)
+			//.setMessage(R.string.alert_exit_message)
+			.setPositiveButton(R.string.alert_exit_button_yes,new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					setResult(RESULT_OK, new Intent().putExtra("exit", true));
+					finish();
+				}
+			})
+			.setNegativeButton(R.string.alert_exit_button_no,null)
+			.show();
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	/*
-	@Override
-	public void onBackPressed() {
-		// TODO Auto-generated method stub
-		new AlertDialog.Builder(this)
-		.setTitle(R.string.alert_exit_title)
-		//.setMessage(R.string.alert_exit_message)
-		.setPositiveButton(R.string.alert_exit_button_yes,new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				setResult(RESULT_OK, new Intent().putExtra("exit", true));
-				finish();
-			}
-		})
-		.setNegativeButton(R.string.alert_exit_button_no,null)
-		.show();
+
+	private void changeLocationProvider(){
+		this.locationRetryCount = this.maxLocationRetryCount;
+		if(this.provider==LocationManager.GPS_PROVIDER){
+			this.provider = LocationManager.NETWORK_PROVIDER;
+			Log.d("Loguser","Chane Provider to Network");
+		}else{
+			this.provider = LocationManager.GPS_PROVIDER;
+			Log.d("Loguser","Chane Provider to GPS");
+		}
+		this.location = locManager.getLastKnownLocation(this.provider);
+		
 	}
-	*/
-	
+	private void getLocation(){
+		Log.d("Loguser","Waitting Timeout");
+		
+		if(--this.locationRetryCount<=0){
+			changeLocationProvider();
+		}
+		
+		if(location==null){
+			Timer autoUpdate = new Timer();
+			autoUpdate.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					getLocation();
+				}
+			},getLocationTimeout);
+		}else{
+			this.setLocationSharedPreferences(this.location);
+			locManager.removeUpdates(locListener);
+			finish();
+		}
+	}
 	private void setLocationSharedPreferences(Location location){
-		Log.d("Loguser","zzzzzz"+String.valueOf(location.getTime()));
 		this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE)
 		.edit()
 		.putString("location_lat", String.valueOf(location.getLatitude()))
