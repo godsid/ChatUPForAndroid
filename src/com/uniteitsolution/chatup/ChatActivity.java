@@ -6,7 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,19 +18,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,8 +45,13 @@ public class ChatActivity extends Activity {
 	static final String PREFS_ACCOUNT = "account";
 	public String username;
 	public String userAvatar; 
-	private ListView listChat;
-	private ArrayList<ChatEntry> chatEntries;
+	
+	private ViewGroup messagesContainer;
+	private ScrollView scrollContainer;
+	private EditText messageBox;
+	private Button sendButton;
+	
+	
 	
 	public SocketIOClient chatClient;
 	
@@ -54,97 +59,53 @@ public class ChatActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		this.setContentView(R.layout.activity_chat);
 		
-		final EditText chatBox = (EditText)findViewById(R.id.chat_box);
-		final Button chatSend = (Button)findViewById(R.id.chat_send);
-		final TextView chatHead = (TextView)findViewById(R.id.chat_head);
+		/*if (android.os.Build.VERSION.SDK_INT > 9) {
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+			StrictMode.setThreadPolicy(policy);
+		}*/
+		this.setContentView(R.layout.layout_chat);
 		
-		 username = getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("username", "");
-		 userAvatar = getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("avatar", "");
 		
-		listChat = (ListView)findViewById(R.id.chatList);
-		chatEntries = new ArrayList<ChatEntry>();
 		
-		ChatEntry listChatEntry = new ChatEntry();
-		listChatEntry.setName("tui");
-		listChatEntry.setMessage("Message data");
-		chatEntries.add(listChatEntry);
+		messageBox = (EditText)findViewById(R.id.chat_message_box);
+		sendButton = (Button)findViewById(R.id.chat_send_button);
+		scrollContainer = (ScrollView)findViewById(R.id.chat_scroll_container);
+		messagesContainer = (ViewGroup)findViewById(R.id.chat_message_container);
+		
+		//final TextView chatHead = (TextView)findViewById(R.id.chat_head);
+		
+		username = getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("username", "");
+		userAvatar = getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("avatar", "");
 		
 		this.setTitle(R.string.page_chat_title);
 		
-		listChat.setAdapter(new ListViewAdapter());
-		
 		this.connect();
 		
-		chatSend.setOnClickListener(new View.OnClickListener() {
+		sendButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				Log.d("Loguser","click");
-				if(chatBox.getText().toString()!=""){
+				if(messageBox.getText().toString()!=""){
 					//chatClient.emit(chatBox.getText().toString());
 					try {
-						chatClient.emit(new JSONObject("{msg:\""+chatBox.getText().toString()+"\",user:{name:\""+username+"\",avatar:\""+userAvatar+"\"}}"));
+						chatClient.emit(new JSONObject("{msg:\""+messageBox.getText().toString()+"\",user:{name:\""+username+"\",avatar:\""+userAvatar+"\"}}"));
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						Log.d("Loguser",e.getMessage());
 					}
-					chatBox.setText("");
+					messageBox.setText("");
 				}
 			}
 		});	
 	}
 	
-	private class ListViewAdapter extends BaseAdapter{
-
-		private ListViewHolder holder;
-		
-		@Override
-		public int getCount() {
-			// TODO Auto-generated method stub
-			return chatEntries.size();
-		}
-
-		@Override
-		public Object getItem(int position) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public long getItemId(int position) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			// TODO Auto-generated method stub
-			
-			convertView = LayoutInflater.from(ChatActivity.this).inflate(R.layout.chat_listview,null);
-			holder = new ListViewHolder();
-			holder.name = (TextView) convertView.findViewById(R.id.chat_list_name);
-			holder.message = (TextView) convertView.findViewById(R.id.chat_list_message);
-			holder.avatar = (ImageView) convertView.findViewById(R.id.chat_list_avatar);
-			if(chatEntries.get(position).getName()!=null){
-				holder.name.setText(chatEntries.get(position).getName());
-				holder.message.setText(chatEntries.get(position).getMessage());
-				//holder.avatar.setImageURI();
-				
-				//holder.avatar.setImageBitmap(fetchImage("http://graph.facebook.com/534460549/picture?type=square"));
-				//fetchImage
-			}
-			return convertView;
-		}
-	}
 	
-	private class ListViewHolder{
-		public TextView name,message;
-		public ImageView avatar;
-	}
+	
+	
 	private void connect(){
 		SocketIOClient.connect("http://api.srihawong.info:8080",new ConnectCallback() {
 			
@@ -172,21 +133,7 @@ public class ChatActivity extends Activity {
 						chatClient = client;
 						findRoom(client);
 						joinRoom(client);
-						client.addListener("message", new EventCallback() {
-							
-							@Override
-							public void onEvent(String event, JSONArray argument,
-									Acknowledge acknowledge) {
-								// TODO Auto-generated method stub
-								try {
-									Toast.makeText(getBaseContext(),"Message:"+argument.getString(0).toString(),Toast.LENGTH_SHORT).show();
-								} catch (JSONException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-									Log.d("Loguser",e.getMessage());
-								}
-							}
-						});
+						recv(client);
 					}
 				});
 			}
@@ -292,7 +239,22 @@ public class ChatActivity extends Activity {
 	}
 	
 	private void recv(SocketIOClient client){
-		
+		client.addListener("message", new EventCallback() {
+			
+			@Override
+			public void onEvent(String event, JSONArray msg,
+					Acknowledge acknowledge) {
+				// TODO Auto-generated method stub
+				try {
+					Toast.makeText(getBaseContext(),"Message:"+msg.getString(0).toString(),Toast.LENGTH_SHORT).show();
+					showMessage(msg);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					Log.d("Loguser",e.getMessage());
+				}
+			}
+		});
 	}
 	
 	public Bitmap fetchImage(String url) {
@@ -321,10 +283,75 @@ public class ChatActivity extends Activity {
 			Log.d("Loguser",e.getMessage());
 			Log.d("fetchImage","IO exception: " + e);
 	}catch(Exception e){
-		Log.d("Loguser",e.getMessage());
+		
 			Log.d("fetchImage","Exception: " + e);
 	}
 		
 		return null;
+	}
+	
+	private void showMessage(JSONArray jsonMessage){
+		
+		try {
+			final JSONObject msg = (JSONObject) jsonMessage.getJSONObject(0);
+			
+			//Create layout
+			/*LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+	                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+			msgView.setLayoutParams(params);
+			*/
+			
+			//Add Avatar
+			final ImageView userImageView = new ImageView(ChatActivity.this);
+			
+			Bitmap bitmap = fetchImage(msg.getJSONObject("user").getString("avatar"));
+			userImageView.setImageBitmap(bitmap);
+					
+			//Bitmap bitmap = fetchImage(msg.getJSONObject("user").getString("avatar"));
+			//userImageView.setImageBitmap(bitmap);
+			
+			
+			//Add Username
+			final TextView userTextView = new TextView(ChatActivity.this);
+			userTextView.setTextColor(Color.BLACK);
+			userTextView.setText(msg.getJSONObject("user").getString("name"));
+			
+			//Add message
+			final TextView msgView = new TextView(ChatActivity.this);
+			msgView.setTextColor(Color.BLACK);
+			msgView.setText(msg.getString("msg"));
+			
+			
+			
+			runOnUiThread(new Runnable() {
+	            @Override
+	            public void run() {
+	            	messagesContainer.addView(userImageView);
+	            	messagesContainer.addView(userTextView);
+	    			messagesContainer.addView(msgView);
+	    			
+	                // Scroll to bottom
+	                if (scrollContainer.getChildAt(0) != null) {
+	                    scrollContainer.scrollTo(scrollContainer.getScrollX(), scrollContainer.getChildAt(0).getHeight());
+	                }
+	                scrollContainer.fullScroll(View.FOCUS_DOWN);
+	            }
+	        });
+			
+			
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			
+		}
+		
+		
+		
+		
+		
+		/*messagesContainer.addView(textView);*/
+		
 	}
 }

@@ -25,7 +25,7 @@
         
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id" />
         <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyDkkRgaIdkIbb_nlPyP4Gqq357bXzdiBEE" />
-        <meta-data android:value="@integer/google_play_services_version" android:name="com.google.android.gms.version" />
+       
         
         
         <activity android:name="com.uniteitsolution.chatup.LoginAppActivity"></activity>
