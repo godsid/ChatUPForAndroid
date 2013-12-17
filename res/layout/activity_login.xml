@@ -8,19 +8,28 @@
         android:id="@+id/registerLabel"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginLeft="80dp"
-        android:layout_marginTop="144dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
         android:layout_weight="1"
         android:text="Register/Login"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Button
-        android:id="@+id/facebookLogin"
+    <com.facebook.widget.ProfilePictureView
+        android:id="@+id/facebook_image"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginLeft="100dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1" >
+
+    </com.facebook.widget.ProfilePictureView>
+
+    <com.facebook.widget.LoginButton
+        android:id="@+id/facebook_button_login"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
         android:layout_weight="1"
-        android:text="Facebook" />
+        android:text="LoginButton" />
 
 </LinearLayout>

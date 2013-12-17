@@ -1,5 +1,13 @@
 package com.uniteitsolution.chatup;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,16 +16,23 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.koushikdutta.async.http.socketio.Acknowledge;
 import com.koushikdutta.async.http.socketio.ConnectCallback;
@@ -28,12 +43,11 @@ import com.koushikdutta.async.http.socketio.SocketIOClient;
 public class ChatActivity extends Activity {
 
 	static final String PREFS_ACCOUNT = "account";
+	public String username;
+	public String userAvatar; 
+	private ListView listChat;
+	private ArrayList<ChatEntry> chatEntries;
 	
-	/*public TextView chatHead;
-	public Button chatSend;
-	public EditText chatBox;
-	
-	*/
 	public SocketIOClient chatClient;
 	
 	@Override
@@ -46,7 +60,21 @@ public class ChatActivity extends Activity {
 		final Button chatSend = (Button)findViewById(R.id.chat_send);
 		final TextView chatHead = (TextView)findViewById(R.id.chat_head);
 		
+		 username = getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("username", "");
+		 userAvatar = getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("avatar", "");
+		
+		listChat = (ListView)findViewById(R.id.chatList);
+		chatEntries = new ArrayList<ChatEntry>();
+		
+		ChatEntry listChatEntry = new ChatEntry();
+		listChatEntry.setName("tui");
+		listChatEntry.setMessage("Message data");
+		chatEntries.add(listChatEntry);
+		
 		this.setTitle(R.string.page_chat_title);
+		
+		listChat.setAdapter(new ListViewAdapter());
+		
 		this.connect();
 		
 		chatSend.setOnClickListener(new View.OnClickListener() {
@@ -58,7 +86,7 @@ public class ChatActivity extends Activity {
 				if(chatBox.getText().toString()!=""){
 					//chatClient.emit(chatBox.getText().toString());
 					try {
-						chatClient.emit(new JSONObject("{msg:\""+chatBox.getText().toString()+"\",user:{name:\"Kea\",avatar:\"http://graph.facebook.com/534460549/picture?type=square\"}}"));
+						chatClient.emit(new JSONObject("{msg:\""+chatBox.getText().toString()+"\",user:{name:\""+username+"\",avatar:\""+userAvatar+"\"}}"));
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -67,11 +95,56 @@ public class ChatActivity extends Activity {
 					chatBox.setText("");
 				}
 			}
-		});
-	
-		
+		});	
 	}
+	
+	private class ListViewAdapter extends BaseAdapter{
 
+		private ListViewHolder holder;
+		
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return chatEntries.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			
+			convertView = LayoutInflater.from(ChatActivity.this).inflate(R.layout.chat_listview,null);
+			holder = new ListViewHolder();
+			holder.name = (TextView) convertView.findViewById(R.id.chat_list_name);
+			holder.message = (TextView) convertView.findViewById(R.id.chat_list_message);
+			holder.avatar = (ImageView) convertView.findViewById(R.id.chat_list_avatar);
+			if(chatEntries.get(position).getName()!=null){
+				holder.name.setText(chatEntries.get(position).getName());
+				holder.message.setText(chatEntries.get(position).getMessage());
+				//holder.avatar.setImageURI();
+				
+				//holder.avatar.setImageBitmap(fetchImage("http://graph.facebook.com/534460549/picture?type=square"));
+				//fetchImage
+			}
+			return convertView;
+		}
+	}
+	
+	private class ListViewHolder{
+		public TextView name,message;
+		public ImageView avatar;
+	}
 	private void connect(){
 		SocketIOClient.connect("http://api.srihawong.info:8080",new ConnectCallback() {
 			
@@ -86,12 +159,6 @@ public class ChatActivity extends Activity {
 				
 				Log.d("Loguser","Connect Complate");
 				
-				/*client.setJSONCallback(ChatActivity.this);
-				client.setReconnectCallback(ChatActivity.this);
-				client.setDisconnectCallback(ChatActivity.this);
-				client.setErrorCallback(ChatActivity.this);
-				client.setStringCallback(ChatActivity.this);
-				*/
 				client.of("/chat",new ConnectCallback() {
 					
 					@Override
@@ -105,7 +172,21 @@ public class ChatActivity extends Activity {
 						chatClient = client;
 						findRoom(client);
 						joinRoom(client);
-						
+						client.addListener("message", new EventCallback() {
+							
+							@Override
+							public void onEvent(String event, JSONArray argument,
+									Acknowledge acknowledge) {
+								// TODO Auto-generated method stub
+								try {
+									Toast.makeText(getBaseContext(),"Message:"+argument.getString(0).toString(),Toast.LENGTH_SHORT).show();
+								} catch (JSONException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+									Log.d("Loguser",e.getMessage());
+								}
+							}
+						});
 					}
 				});
 			}
@@ -199,7 +280,7 @@ public class ChatActivity extends Activity {
 			}
 		});
 		try {
-			client.emit("join room", new JSONArray("[{name:'CentralChaegwattana',user:{name:'tui',avatar:'http://graph.facebook.com/534460549/picture?type=square'}}]"));
+			client.emit("join room", new JSONArray("[{name:'CentralChaegwattana',user:{name:'"+username+"',avatar:'"+userAvatar+"'}}]"));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -212,5 +293,38 @@ public class ChatActivity extends Activity {
 	
 	private void recv(SocketIOClient client){
 		
+	}
+	
+	public Bitmap fetchImage(String url) {
+		try {
+			URL imageUrl = new URL(url.trim());
+			InputStream input = null;
+			URLConnection conn = imageUrl.openConnection();
+			
+			HttpURLConnection httpConn = (HttpURLConnection)conn;
+			httpConn.setRequestMethod("GET");
+			httpConn.setReadTimeout(40000); // ตั้งเวลา  connect timeout
+			httpConn.connect(); // connection
+	 
+			if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				input = httpConn.getInputStream(); // จับใส่ InputStream
+			}
+	      Bitmap bitmap = BitmapFactory.decodeStream(input); //แปลงเป็น Bitmap
+	      input.close();
+	      httpConn.disconnect();
+	        return bitmap;
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.d("Loguser",e.getMessage());
+		}catch ( IOException e ){
+			Log.d("Loguser",e.getMessage());
+			Log.d("fetchImage","IO exception: " + e);
+	}catch(Exception e){
+		Log.d("Loguser",e.getMessage());
+			Log.d("fetchImage","Exception: " + e);
+	}
+		
+		return null;
 	}
 }

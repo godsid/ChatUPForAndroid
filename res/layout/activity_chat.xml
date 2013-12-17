@@ -13,9 +13,19 @@
         android:text="Header"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
+    <ListView
+        android:id="@+id/chatList"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/chat_head" >
+
+    </ListView>
+    
+    
     <EditText
         android:id="@+id/chat_box"
-        android:layout_width="wrap_content"
+        android:layout_width="230dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
@@ -31,5 +41,7 @@
         android:layout_alignBottom="@+id/chat_box"
         android:layout_toRightOf="@+id/chat_box"
         android:text="@string/chat_send" />
+
+    
 	
 </RelativeLayout>

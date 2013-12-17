@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
 		location_lng = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_lng", "");
 		location_name = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_name", "");
 		location_time = Long.valueOf(this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_time", "0"));
-		Log.d("Loguser","ddddddd"+location_lat+":"+String.valueOf(location_time)+":"+String.valueOf(Calendar.getInstance().getTimeInMillis()));
+		//Log.d("Loguser","ddddddd"+location_lat+":"+String.valueOf(location_time)+":"+String.valueOf(Calendar.getInstance().getTimeInMillis()));
 		
 		if(location_lat=="" || location_time < Calendar.getInstance().getTimeInMillis() - refreshLocationTime){
 			Intent goLocation = new Intent(this.getApplicationContext(),LocationAppActivity.class);
