@@ -39,29 +39,42 @@ public class LoginAppActivity extends Activity{
 		
 		//logKeyHash();
 		
+		
 		// start Facebook Login
 		Session.openActiveSession(LoginAppActivity.this, true, new Session.StatusCallback() {
 		    // callback when session changes state
 		    @Override
 		    public void call(Session session, SessionState state, Exception exception) {
+		    	
+		    	/*if(session.isOpened() && getIntent().getBooleanExtra("logout", false)){
+					logout();
+				}*/
+		    	
 		    	if (session.isOpened()) {
 		    		Request.newMeRequest(session, new Request.GraphUserCallback() {
 						
 						@Override
 						public void onCompleted(final GraphUser user, final Response response) {
 							if(user!=null){
+								
 								fbProfilePicture.setProfileId(user.getId());
-								getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).edit().putString("username", user.getUsername()).commit();
-								getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).edit().putString("avatar", "http://graph.facebook.com/"+user.getId()+"/picture?type=square").commit();
+								Intent intent = new Intent ()
+								.putExtra("username", user.getUsername())
+								.putExtra("avatar", getFacebookAvatar(user.getId()))
+								.putExtra("name", user.getName());
+								
+								setResult(RESULT_OK, intent);
 								finish();
+								
+								//getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).edit().putString("username", user.getUsername()).commit();
+								//getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).edit().putString("avatar", "http://graph.facebook.com/"+user.getId()+"/picture?type=square").commit();
+								//finish();
 							}
 						}
 					}).executeAsync();
-		 
 		    	}
 		    }
 		});
-		
 	}
 	
 	@Override
@@ -69,6 +82,7 @@ public class LoginAppActivity extends Activity{
 		// TODO Auto-generated method stub
 		super.onActivityResult(requestCode, resultCode, data);
 		Session.getActiveSession().onActivityResult(LoginAppActivity.this, requestCode, resultCode, data);
+		//Log.d("Loguser","Activity:"+String.valueOf(requestCode));
 	}
 
 	@Override
@@ -87,6 +101,14 @@ public class LoginAppActivity extends Activity{
 		})
 		.setNegativeButton(R.string.alert_exit_button_no,null)
 		.show();	
+	}
+	
+	private String getFacebookAvatar(String facebookID){
+		return "http://graph.facebook.com/"+facebookID+"/picture?type=square";
+	}
+	
+	private void logout(){
+		Session.getActiveSession().closeAndClearTokenInformation();
 	}
 	
 	public void logKeyHash() {

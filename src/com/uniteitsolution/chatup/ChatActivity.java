@@ -1,27 +1,17 @@
 package com.uniteitsolution.chatup;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -81,6 +72,13 @@ public class ChatActivity extends Activity {
 		this.setTitle(R.string.page_chat_title);
 		
 		this.connect();
+		
+		//test
+		
+		//final ImageView userImageView = new ImageView(ChatActivity.this);
+		//Bitmap bitmap =  fetchImage("http://fp1.fsanook.com/fp/51/259317/first-page-image_1387277225__medium.jpg");
+		//userImageView.setImageBitmap(bitmap);
+		//messagesContainer.addView(userImageView);
 		
 		sendButton.setOnClickListener(new View.OnClickListener() {
 			
@@ -222,7 +220,6 @@ public class ChatActivity extends Activity {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 					Log.d("Loguser",e.getMessage());
-					
 				}
 			}
 		});
@@ -257,59 +254,18 @@ public class ChatActivity extends Activity {
 		});
 	}
 	
-	public Bitmap fetchImage(String url) {
-		try {
-			URL imageUrl = new URL(url.trim());
-			InputStream input = null;
-			URLConnection conn = imageUrl.openConnection();
-			
-			HttpURLConnection httpConn = (HttpURLConnection)conn;
-			httpConn.setRequestMethod("GET");
-			httpConn.setReadTimeout(40000); // ตั้งเวลา  connect timeout
-			httpConn.connect(); // connection
-	 
-			if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				input = httpConn.getInputStream(); // จับใส่ InputStream
-			}
-	      Bitmap bitmap = BitmapFactory.decodeStream(input); //แปลงเป็น Bitmap
-	      input.close();
-	      httpConn.disconnect();
-	        return bitmap;
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Log.d("Loguser",e.getMessage());
-		}catch ( IOException e ){
-			Log.d("Loguser",e.getMessage());
-			Log.d("fetchImage","IO exception: " + e);
-	}catch(Exception e){
-		
-			Log.d("fetchImage","Exception: " + e);
-	}
-		
-		return null;
-	}
-	
 	private void showMessage(JSONArray jsonMessage){
 		
 		try {
 			final JSONObject msg = (JSONObject) jsonMessage.getJSONObject(0);
 			
 			//Create layout
-			/*LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-	                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-			msgView.setLayoutParams(params);
-			*/
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 			
 			//Add Avatar
 			final ImageView userImageView = new ImageView(ChatActivity.this);
-			
-			Bitmap bitmap = fetchImage(msg.getJSONObject("user").getString("avatar"));
-			userImageView.setImageBitmap(bitmap);
-					
-			//Bitmap bitmap = fetchImage(msg.getJSONObject("user").getString("avatar"));
-			//userImageView.setImageBitmap(bitmap);
-			
+			new ImageViewAsync(msg.getJSONObject("user").getString("avatar"),userImageView);
 			
 			//Add Username
 			final TextView userTextView = new TextView(ChatActivity.this);
@@ -320,8 +276,7 @@ public class ChatActivity extends Activity {
 			final TextView msgView = new TextView(ChatActivity.this);
 			msgView.setTextColor(Color.BLACK);
 			msgView.setText(msg.getString("msg"));
-			
-			
+			msgView.setLayoutParams(params);
 			
 			runOnUiThread(new Runnable() {
 	            @Override
@@ -347,11 +302,6 @@ public class ChatActivity extends Activity {
 			
 		}
 		
-		
-		
-		
-		
-		/*messagesContainer.addView(textView);*/
 		
 	}
 }

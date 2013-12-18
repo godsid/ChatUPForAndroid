@@ -8,31 +8,32 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.facebook.Session;
 
 
-public class MainActivity extends Activity {
-	
+public class MainActivity extends Activity {	
 	public static SharedPreferences preferences;
 	public static final String PREFS_ACCOUNT = "account";
-	public static String username;
-	public static String location_lat;
-	public static String location_lng;
-	public static String location_name;
-	public static long location_time;
+	public static String name, username, avatar, locationLat, locationLng, locationName;
+	public static long locationTime;
 	private static final int refreshLocationTime = 10000;
+	private static final int REQUEST_LOCATION = 1;
+	private static final int REQUEST_LOGIN = 2;
+	private static final int REQUEST_LOGOUT = 3;
+	private static final int REQUEST_CHAT = 4;
+	private static final int REQUEST_ROOM = 5;
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
-		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		Log.d("Loguser","onCreate");
+		getUserShardPreferance();
 	}
 	
 	@Override
@@ -41,7 +42,7 @@ public class MainActivity extends Activity {
 		super.onStart();
 		Log.d("Loguser","onStart");
 	}
-
+	
 	@Override
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
@@ -67,45 +68,19 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	protected boolean checkLocation(){
-		Log.d("Loguser","Checklocation");
-		
-		location_lat = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_lat", "");
-		location_lng = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_lng", "");
-		location_name = this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_name", "");
-		location_time = Long.valueOf(this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).getString("location_time", "0"));
-		//Log.d("Loguser","ddddddd"+location_lat+":"+String.valueOf(location_time)+":"+String.valueOf(Calendar.getInstance().getTimeInMillis()));
-		
-		if(location_lat=="" || location_time < Calendar.getInstance().getTimeInMillis() - refreshLocationTime){
-			Intent goLocation = new Intent(this.getApplicationContext(),LocationAppActivity.class);
-			startActivityForResult(goLocation,1);
-			return false;
-		}else{
-			return true;
-		}
-	}
-	protected boolean checkLogin(){
-		Log.d("Loguser","Checklogin");
-		username = this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("username", "");
-		if(username==""){
-			Intent goFacebookLogin = new Intent(this.getApplicationContext(),LoginAppActivity.class);
-			startActivityForResult(goFacebookLogin,1);
-			return false;
-		}else{
-			Intent goChat = new Intent(this.getApplicationContext(),ChatActivity.class);
-			startActivityForResult(goChat,1);
-			return true;
-		}
-	}
+	
 	
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
 		Log.d("Loguser","onResume");
-		if(this.checkLocation()){
-			this.checkLogin();
-		}
+		
+		this.checkLogin();
+		this.checkLocation();
+		
+		Intent goChat = new Intent(this.getApplicationContext(),ChatActivity.class);
+		startActivityForResult(goChat,REQUEST_CHAT);
 	}
 	
 	@Override
@@ -113,14 +88,31 @@ public class MainActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onActivityResult(requestCode, resultCode, data);
 		
+		Log.d("Loguser",String.valueOf(requestCode));
+		if(resultCode==RESULT_OK){
+			switch(requestCode){
+				case REQUEST_LOGIN:
+					Log.d("Loguser","REQUEST_LOGIN");
+					name = setUserShardPreferance("name",data.getStringExtra("name"));
+					username = setUserShardPreferance("username",data.getStringExtra("username"));
+					avatar = setUserShardPreferance("avatar",data.getStringExtra("avatar"));
+				break;
+				case REQUEST_LOCATION:
+					locationLat = setUserShardPreferance("locationLat",data.getStringExtra("locationLat"));
+					locationLng = setUserShardPreferance("locationLng",data.getStringExtra("locationLng"));
+					locationName = setUserShardPreferance("locationName",data.getStringExtra("locationName"));
+					locationTime = setUserShardPreferance("locationTime",data.getLongExtra("locationTime",0));
+					break;
+			}
+		}
+		
 		if(resultCode==RESULT_OK){
 			if(data.getBooleanExtra("exit",false)==true){
 				finish();
 			}
-			/*else if(data.getBooleanExtra("location",false)==true){
-				
-			}*/
-			
+			if(data.getBooleanExtra("logout",false)==true){
+				logout();
+			}
 		}
 	}
 
@@ -130,12 +122,72 @@ public class MainActivity extends Activity {
 		//new MenuManagement(item);
 		switch(item.getItemId()){
 		case R.id.menu_logout:
-			this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).edit().remove("username").commit();
+			logout();
 			break;
 		}
 		return super.onOptionsItemSelected(item);
-		
 	}
 	
+	private void getUserShardPreferance(){
+		name = this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("name", "");
+		username = this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("username", "");
+		avatar = this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("avatar", "");
+		locationLat = this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("locationLat", "");
+		locationLng = this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("locationLng", "");
+		locationName = this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("locationName", "");
+		locationTime = this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getLong("locationTime", 0);
+	}
+	private String setUserShardPreferance(String key, String value){
+		this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE)
+		.edit()
+		.putString(key,value )
+		.commit();
+		return value;
+	}
+	private Long setUserShardPreferance(String key,Long value){
+		this.getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE)
+		.edit()
+		.putLong(key,value )
+		.commit();
+		return value;
+	}
+	private void removeUserShardPreferance(String key){
+		this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE)
+		.edit()
+		.remove(key)
+		.commit();
+	}
+	private void checkLocation(){
+		Log.d("Loguser","Checklocation");
+		//
+		if(locationLng == "" || locationLat=="" || locationTime < Calendar.getInstance().getTimeInMillis() - refreshLocationTime){
+			Intent goLocation = new Intent(this.getApplicationContext(),LocationAppActivity.class);
+			startActivityForResult(goLocation,REQUEST_LOCATION);
+		}
+	}
+	private void checkLogin(){
+		Log.d("Loguser","Checklogin:"+username);
+		
+		if(username==""){
+			Intent goFacebookLogin = new Intent(this.getApplicationContext(),LoginAppActivity.class);
+			startActivityForResult(goFacebookLogin,REQUEST_LOGIN);
+		}
+	}
+	
+	private void logout(){
+		name = username = avatar = locationLat = locationLng = locationName =  null;
+		locationTime = 0;
+		removeUserShardPreferance("name");
+		removeUserShardPreferance("username");
+		removeUserShardPreferance("avatar");
+		removeUserShardPreferance("locationLat");
+		removeUserShardPreferance("locationLng");
+		removeUserShardPreferance("locationName");
+		removeUserShardPreferance("locationTime");
+		Intent goFacebookLogin = new Intent(this.getApplicationContext(),LoginAppActivity.class);
+		goFacebookLogin.putExtra("logout", true);
+		startActivityForResult(goFacebookLogin,REQUEST_LOGIN);
+		
+	}
 }
 

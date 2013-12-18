@@ -27,10 +27,10 @@ public class LocationAppActivity extends Activity {
 	private Location location;
 	private LocationManager locManager;
 	private LocationListener locListener;
-	private static String location_lat;
-	private static String location_lng;
-	private static String location_name;
-	private static int location_time;
+	private static String locationLat;
+	private static String locationLng;
+	private static String locationName;
+	private static int locationTime;
 	
 	private int locationRetryCount = 1;
 	private int maxLocationRetryCount = 1;
@@ -58,34 +58,37 @@ public class LocationAppActivity extends Activity {
 			@Override
 			public void onStatusChanged(String provider, int status, Bundle extras) {
 				// TODO Auto-generated method stub
-				Toast.makeText(getBaseContext(),"onStatusChanged",Toast.LENGTH_SHORT).show();
 			}
 			
 			@Override
 			public void onProviderEnabled(String provider) {
 				// TODO Auto-generated method stub
-				Toast.makeText(getBaseContext(),"onProviderEnabled",Toast.LENGTH_SHORT).show();
 			}
 			
 			@Override
 			public void onProviderDisabled(String provider) {
 				// TODO Auto-generated method stub
-				Toast.makeText(getBaseContext(),"onProviderDisabled",Toast.LENGTH_SHORT).show();
 			}
 			
 			@Override
 			public void onLocationChanged(Location locationUpdate) {
 				// TODO Auto-generated method stub
-				Toast.makeText(getBaseContext(),"onLocationChanged",Toast.LENGTH_SHORT).show();
 				location = locationUpdate;
 				if(location!=null){
-					setLocationSharedPreferences(location);
+					
 					Toast.makeText(getBaseContext(),
 	                        "New location latitude [" + 
 	                        location.getLatitude() +
 	                        "] longitude [" + 
 	                        location.getLongitude()+"]",
 	                        Toast.LENGTH_SHORT).show();
+					locationLat = String.valueOf(location.getLatitude());
+					locationLat = String.valueOf(location.getLongitude());
+					
+					Intent intent = new Intent();
+					intent.putExtra("locationLat", locationLat)
+					.putExtra("locationLng", locationLng);
+					setResult(RESULT_OK,intent);
 					finish();
 				}
 			}
@@ -101,12 +104,12 @@ public class LocationAppActivity extends Activity {
 		super.onResume();
 		Toast.makeText(getBaseContext(),"onResume",Toast.LENGTH_SHORT).show();
 		
+		/*
 		if(this.location==null){
 			Toast.makeText(getBaseContext(),"getLastKnownLocation is null",Toast.LENGTH_SHORT).show();
 		}else{
-			this.setLocationSharedPreferences(this.location);
 			Toast.makeText(getBaseContext(),"This Location "+location.getLatitude() ,Toast.LENGTH_SHORT).show();
-		}
+		}*/
 		
 		if (!locManager.isProviderEnabled(this.provider)) {
 			new AlertDialog.Builder(this)
@@ -201,17 +204,16 @@ public class LocationAppActivity extends Activity {
 				}
 			},getLocationTimeout);
 		}else{
-			this.setLocationSharedPreferences(this.location);
+			locationLat = String.valueOf(location.getLatitude());
+			locationLng = String.valueOf(location.getLongitude());
+			
+			Intent intent = new Intent();
+			intent.putExtra("locationLat", locationLat)
+			.putExtra("locationLng", locationLng)
+			.putExtra("locationTime", Calendar.getInstance().getTimeInMillis());
+			setResult(RESULT_OK,intent);
 			locManager.removeUpdates(locListener);
 			finish();
 		}
-	}
-	private void setLocationSharedPreferences(Location location){
-		this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE)
-		.edit()
-		.putString("location_lat", String.valueOf(location.getLatitude()))
-		.putString("location_lng", String.valueOf(location.getLongitude()))
-		.putString("location_time", String.valueOf(Calendar.getInstance().getTimeInMillis()))
-		.commit();
 	}
 }
