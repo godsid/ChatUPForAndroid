@@ -3,16 +3,16 @@ package com.uniteitsolution.chatup;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,14 +35,13 @@ import com.koushikdutta.async.http.socketio.SocketIOClient;
 public class ChatActivity extends Activity {
 
 	static final String PREFS_ACCOUNT = "account";
-	public String username;
-	public String userAvatar; 
+	static private String name, username, avatar, roomName;
+	
 	
 	private ViewGroup messagesContainer;
 	private ScrollView scrollContainer;
 	private EditText messageBox;
 	private Button sendButton;
-	
 	
 	
 	public SocketIOClient chatClient;
@@ -66,8 +66,11 @@ public class ChatActivity extends Activity {
 		
 		//final TextView chatHead = (TextView)findViewById(R.id.chat_head);
 		
-		username = getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("username", "");
-		userAvatar = getSharedPreferences(PREFS_ACCOUNT,MODE_PRIVATE).getString("avatar", "");
+		Intent intent = getIntent();
+		name = intent.getStringExtra("name");
+		username = intent.getStringExtra("username");
+		avatar = intent.getStringExtra("avatar");
+		roomName = intent.getStringExtra("roomName");
 		
 		this.setTitle(R.string.page_chat_title);
 		
@@ -89,7 +92,7 @@ public class ChatActivity extends Activity {
 				if(messageBox.getText().toString()!=""){
 					//chatClient.emit(chatBox.getText().toString());
 					try {
-						chatClient.emit(new JSONObject("{msg:\""+messageBox.getText().toString()+"\",user:{name:\""+username+"\",avatar:\""+userAvatar+"\"}}"));
+						chatClient.emit(new JSONObject("{msg:\""+messageBox.getText().toString()+"\",user:{name:\""+username+"\",avatar:\""+avatar+"\"}}"));
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -224,7 +227,7 @@ public class ChatActivity extends Activity {
 			}
 		});
 		try {
-			client.emit("join room", new JSONArray("[{name:'CentralChaegwattana',user:{name:'"+username+"',avatar:'"+userAvatar+"'}}]"));
+			client.emit("join room", new JSONArray("[{name:'CentralChaegwattana',user:{name:'"+username+"',avatar:'"+avatar+"'}}]"));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -260,35 +263,32 @@ public class ChatActivity extends Activity {
 			final JSONObject msg = (JSONObject) jsonMessage.getJSONObject(0);
 			
 			//Create layout
-			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-					LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			final View layoutMessage = inflater.inflate(R.layout.layout_chat_message, null);
 			
-			//Add Avatar
-			final ImageView userImageView = new ImageView(ChatActivity.this);
-			new ImageViewAsync(msg.getJSONObject("user").getString("avatar"),userImageView);
+			ImageView userAvatarImageView = (ImageView)layoutMessage.findViewById(R.id.chat_message_avatar);
+			TextView nameTextView = (TextView)layoutMessage.findViewById(R.id.chat_message_name);
+			TextView messageTextView = (TextView)layoutMessage.findViewById(R.id.chat_message_text);
 			
-			//Add Username
-			final TextView userTextView = new TextView(ChatActivity.this);
-			userTextView.setTextColor(Color.BLACK);
-			userTextView.setText(msg.getJSONObject("user").getString("name"));
+			//Assige data
+			new ImageViewAsync(msg.getJSONObject("user").getString("avatar"),userAvatarImageView);
+			nameTextView.setText(msg.getJSONObject("user").getString("name"));
+			messageTextView.setText(msg.getString("msg"));
 			
-			//Add message
-			final TextView msgView = new TextView(ChatActivity.this);
-			msgView.setTextColor(Color.BLACK);
-			msgView.setText(msg.getString("msg"));
-			msgView.setLayoutParams(params);
 			
 			runOnUiThread(new Runnable() {
 	            @Override
 	            public void run() {
-	            	messagesContainer.addView(userImageView);
-	            	messagesContainer.addView(userTextView);
-	    			messagesContainer.addView(msgView);
+	            	messagesContainer.addView(layoutMessage);
 	    			
 	                // Scroll to bottom
-	                if (scrollContainer.getChildAt(0) != null) {
-	                    scrollContainer.scrollTo(scrollContainer.getScrollX(), scrollContainer.getChildAt(0).getHeight());
-	                }
+	            	
+	            	
+	            	//scrollContainer.fullScroll(ScrollView.FOCUS_DOWN);
+	            	
+	                //if (scrollContainer.getChildAt(0) != null) {
+	                //    scrollContainer.scrollTo(scrollContainer.getScrollX(), scrollContainer.getChildAt(0).getHeight());
+	                //}
 	                scrollContainer.fullScroll(View.FOCUS_DOWN);
 	            }
 	        });

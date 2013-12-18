@@ -78,9 +78,8 @@ public class MainActivity extends Activity {
 		
 		this.checkLogin();
 		this.checkLocation();
+		this.startChat();
 		
-		Intent goChat = new Intent(this.getApplicationContext(),ChatActivity.class);
-		startActivityForResult(goChat,REQUEST_CHAT);
 	}
 	
 	@Override
@@ -188,6 +187,15 @@ public class MainActivity extends Activity {
 		goFacebookLogin.putExtra("logout", true);
 		startActivityForResult(goFacebookLogin,REQUEST_LOGIN);
 		
+	}
+	
+	private void startChat(){
+		Intent goChat = new Intent(this.getApplicationContext(),ChatActivity.class);
+		goChat.putExtra("username", username)
+		.putExtra("name", name)
+		.putExtra("avatar", avatar)
+		.putExtra("roomName", "CentralChaegwattana");
+		startActivityForResult(goChat,REQUEST_CHAT);
 	}
 }
 
