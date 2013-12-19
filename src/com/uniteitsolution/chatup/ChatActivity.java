@@ -35,6 +35,9 @@ import com.koushikdutta.async.http.socketio.SocketIOClient;
 public class ChatActivity extends Activity {
 
 	static final String PREFS_ACCOUNT = "account";
+	static final String SERVER_URL = "http://api.srihawong.info:8080";
+	static final String SERVER_NAMESPACE = "/chat";
+	
 	static private String name, username, avatar, roomName;
 	
 	
@@ -50,21 +53,13 @@ public class ChatActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		
-		/*if (android.os.Build.VERSION.SDK_INT > 9) {
-			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-			StrictMode.setThreadPolicy(policy);
-		}*/
 		this.setContentView(R.layout.layout_chat);
-		
-		
+		this.setTitle(R.string.page_chat_title);
 		
 		messageBox = (EditText)findViewById(R.id.chat_message_box);
 		sendButton = (Button)findViewById(R.id.chat_send_button);
 		scrollContainer = (ScrollView)findViewById(R.id.chat_scroll_container);
 		messagesContainer = (ViewGroup)findViewById(R.id.chat_message_container);
-		
-		//final TextView chatHead = (TextView)findViewById(R.id.chat_head);
 		
 		Intent intent = getIntent();
 		name = intent.getStringExtra("name");
@@ -72,17 +67,8 @@ public class ChatActivity extends Activity {
 		avatar = intent.getStringExtra("avatar");
 		roomName = intent.getStringExtra("roomName");
 		
-		this.setTitle(R.string.page_chat_title);
-		
 		this.connect();
-		
-		//test
-		
-		//final ImageView userImageView = new ImageView(ChatActivity.this);
-		//Bitmap bitmap =  fetchImage("http://fp1.fsanook.com/fp/51/259317/first-page-image_1387277225__medium.jpg");
-		//userImageView.setImageBitmap(bitmap);
-		//messagesContainer.addView(userImageView);
-		
+				
 		sendButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -104,11 +90,8 @@ public class ChatActivity extends Activity {
 		});	
 	}
 	
-	
-	
-	
 	private void connect(){
-		SocketIOClient.connect("http://api.srihawong.info:8080",new ConnectCallback() {
+		SocketIOClient.connect(SERVER_URL,new ConnectCallback() {
 			
 			@Override
 			public void onConnectCompleted(Exception ex, SocketIOClient client) {
@@ -118,10 +101,9 @@ public class ChatActivity extends Activity {
 		            return;
 		        }
 				
-				
 				Log.d("Loguser","Connect Complate");
 				
-				client.of("/chat",new ConnectCallback() {
+				client.of(SERVER_NAMESPACE,new ConnectCallback() {
 					
 					@Override
 					public void onConnectCompleted(Exception ex, SocketIOClient client) {
@@ -132,7 +114,6 @@ public class ChatActivity extends Activity {
 			                    return;
 			             }
 						chatClient = client;
-						findRoom(client);
 						joinRoom(client);
 						recv(client);
 					}
@@ -181,32 +162,6 @@ public class ChatActivity extends Activity {
 		.show();
 	}
 
-	private void findRoom(SocketIOClient client){
-		client.addListener("find room",new EventCallback() {
-			
-			@Override
-			public void onEvent(String event, JSONArray argument,
-					Acknowledge acknowledge) {
-				// TODO Auto-generated method stub
-				Log.d("Loguser","Reccive find room");
-				try {
-					Log.d("Loguser",argument.get(0).toString());
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					Log.d("Loguser",e.getMessage());
-				}
-			}
-		});
-		Log.d("Loguser","Find room");
-		try {
-			client.emit("find room", new JSONArray("[{lat: '100.5287415',lng: '13.9042641',dist:'5000',palce:'place'}]"));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Log.d("Loguser",e.getMessage());
-		}
-	}
 	private void joinRoom(SocketIOClient client) {
 		client.addListener("join room", new EventCallback() {
 			
@@ -227,7 +182,9 @@ public class ChatActivity extends Activity {
 			}
 		});
 		try {
-			client.emit("join room", new JSONArray("[{name:'CentralChaegwattana',user:{name:'"+username+"',avatar:'"+avatar+"'}}]"));
+			client.emit("join room", new JSONArray("[{name:'"+roomName+"',user:{name:'"+username+"',avatar:'"+avatar+"'}}]"));
+			setTitle(getString(R.string.page_chat_title)+":"+roomName);
+			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

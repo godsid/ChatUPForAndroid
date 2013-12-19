@@ -32,12 +32,13 @@ public class LocationAppActivity extends Activity {
 	private static String locationName;
 	private static int locationTime;
 	
-	private int locationRetryCount = 1;
-	private int maxLocationRetryCount = 1;
-	private String provider = LocationManager.GPS_PROVIDER;
+	static private int locationRetryCount = 3;
+	static final private int maxLocationRetryCount = 3;
+	
 	static final int getLocationTimeout = 5000;
 	static final long getLocationMinTime = 10000;
 	static final int getLocationMinDistance = 10;
+	static private String provider = LocationManager.GPS_PROVIDER;
 	
 	//private MapView maps;
 	//private GridView roomLists;
