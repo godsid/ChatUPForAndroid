@@ -13,11 +13,13 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 
 
 public class LocationAppActivity extends Activity {
@@ -48,12 +50,18 @@ public class LocationAppActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_location);
 		this.setTitle(R.string.page_room_title);
-		
+		/*
 		Toast.makeText(getBaseContext(),"onCreate",Toast.LENGTH_SHORT).show();
 		
 		this.locManager = (LocationManager)getSystemService(LOCATION_SERVICE);
 		this.location = locManager.getLastKnownLocation(this.provider);
+		*/
+		/*GoogleMap map = ((MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map_canvas)).getMap();
+*/
 		
+		
+		/*
 		locListener = new LocationListener() {
 			
 			@Override
@@ -94,7 +102,7 @@ public class LocationAppActivity extends Activity {
 				}
 			}
 		};
-		
+		*/
 		//maps = (MapView)findViewById(R.id.map);
 		//roomLists = (GridView)findViewById(R.id.roomList);
 	}
@@ -112,6 +120,7 @@ public class LocationAppActivity extends Activity {
 			Toast.makeText(getBaseContext(),"This Location "+location.getLatitude() ,Toast.LENGTH_SHORT).show();
 		}*/
 		
+		/*
 		if (!locManager.isProviderEnabled(this.provider)) {
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.alert_location_title)
@@ -130,7 +139,7 @@ public class LocationAppActivity extends Activity {
 		}else{
 			this.locManager.requestLocationUpdates(this.provider, getLocationMinTime, getLocationMinDistance, this.locListener);
 			getLocation();
-		}
+		}*/
 	}
 	
 	@Override
@@ -138,7 +147,7 @@ public class LocationAppActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onPause();
 		Toast.makeText(getBaseContext(),"onPause",Toast.LENGTH_SHORT).show();
-		this.locManager.removeUpdates(this.locListener);
+		//this.locManager.removeUpdates(this.locListener);
 	}
 
 	@Override
@@ -157,7 +166,6 @@ public class LocationAppActivity extends Activity {
 		case R.id.menu_logout:
 			this.getSharedPreferences(PREFS_ACCOUNT, MODE_PRIVATE).edit().remove("username").commit();
 			finish();
-			break;
 		case R.id.menu_exit:
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.alert_exit_title)
@@ -177,7 +185,7 @@ public class LocationAppActivity extends Activity {
 	}
 
 	private void changeLocationProvider(){
-		this.locationRetryCount = this.maxLocationRetryCount;
+		/*this.locationRetryCount = this.maxLocationRetryCount;
 		if(this.provider==LocationManager.GPS_PROVIDER){
 			this.provider = LocationManager.NETWORK_PROVIDER;
 			Log.d("Loguser","Chane Provider to Network");
@@ -186,10 +194,10 @@ public class LocationAppActivity extends Activity {
 			Log.d("Loguser","Chane Provider to GPS");
 		}
 		this.location = locManager.getLastKnownLocation(this.provider);
-		
+		*/
 	}
 	private void getLocation(){
-		Log.d("Loguser","Waitting Timeout");
+		/*Log.d("Loguser","Waitting Timeout");
 		
 		if(--this.locationRetryCount<=0){
 			changeLocationProvider();
@@ -215,6 +223,6 @@ public class LocationAppActivity extends Activity {
 			setResult(RESULT_OK,intent);
 			locManager.removeUpdates(locListener);
 			finish();
-		}
+		}*/
 	}
 }

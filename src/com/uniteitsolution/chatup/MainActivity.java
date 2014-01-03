@@ -78,7 +78,7 @@ public class MainActivity extends Activity {
 		
 		this.checkLogin();
 		this.checkLocation();
-		this.startChat();
+		//this.startChat();
 		
 	}
 	
